@@ -62,17 +62,17 @@ export class AuthenticationService {
         const user = this.getUserDetails()
         if (user) {
             return user.exp > Date.now() / 1000
-        }else{
+        } else {
             return false
         }
     }
 
-    public register(user:TokenPayload):Observable<any>{
-        const base = this.http.post('/users/register',user)
+    public register(user: TokenPayload): Observable<any> {
+        const base = this.http.post('/users/register', user)
 
         const request = base.pipe(
-            map((data:TokenResponse)=>{
-                if(data.token){
+            map((data: TokenResponse) => {
+                if (data.token) {
                     this.saveToken(data.token)
                 }
                 return data
@@ -81,21 +81,29 @@ export class AuthenticationService {
         return request
     }
 
-    public login(user:TokenPayload):Observable<any>{
-        const base = this.http.post('/users/login',user)
+    public login(user: TokenPayload): Observable<any> {
+        const base = this.http.post('/users/login', user)
 
         const request = base.pipe(
-            map((data:TokenResponse)=>{
-                if(data.token){
+            map((data: TokenResponse) => {
+                if (data.token) {
                     this.saveToken(data.token)
-                }return data
+                } return data
             })
         )
         return request
     }
 
-    public profile():Observable<any>{
-        return this.http.get('');
+    public profile(): Observable<any> {
+        return this.http.get('/users/profile', {
+            headers: { Authorization: `$(this.getToken())` }
+        });
+    }
+
+    public logout(): void{
+        this.token = ''
+        window.localStorage.removeItem('usertoken')
+        this.router.navigateByUrl('/')
     }
 
 }
